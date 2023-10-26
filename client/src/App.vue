@@ -13,19 +13,96 @@ const paymentIntent = ref(null);
 const messages = ref([]);
 
 // Get readers before mounting the component
-onBeforeMount(async () => {});
+onBeforeMount(async () => {
+  const response = await fetch("/api/readers");
+  const result = await response.json();
+  readersList.value = result.readersList;
+});
 
 // Process payment click handler
-const processPayment = async () => {};
+const processPayment = async () => {
+const response = await fetch("/api/readers/process-payment", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({ amount: amount.value, readerId: readerId.value })
+});
+const result = await response.json();
+const { error } = result;
+if (error) {
+  addMessage(error.message);
+  return;
+}
+reader.value = result.reader;
+paymentIntent.value = result.paymentIntent;
+addMessage(`Processing payment for ${amount.value} on reader ${reader.value.label}`
+ );
+};
 
 // Cancel action click handler
-const cancelAction = async () => {};
+const cancelAction = async () => {
+  const response = await fetch("/api/readers/cancel-action", {
+   method: "POST",
+   headers: {
+    "Content-Type": "application/json",
+   },
+   body: JSON.stringify({ readerId: readerId.value }),
+  });
+  const result = await response.json();
+  const { error } = result;
+  if (error) {
+    addMessage(error.message);
+    return;
+}
+reader.value = result.reader;
+addMessage(
+  `Canceled reader action on ${reader.value.label} (${reader.value.id})`
+);
+reset();
+};
 
 // Simulate payment click handler
-const simulatePayment = async () => {};
-
+const simulatePayment = async () => {
+  const response = await fetch("/api/readers/simulate-payment", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ readerId: reader.value.id }),
+  });
+  const result = await response.json();
+  const { error } = result;
+  if (error) {
+    addMessage(error.message);
+}
+addMessage(
+  `Simulating a customer tapping their card on simulated reader ${reader.value.id} for payment`
+);
+};
 // Capture payment click handler
-const capturePayment = async () => {};
+const capturePayment = async () => {
+  const response = await fetch("/api/payments/capture", {
+    method: "POST",
+    headers: {  
+      "Content-Type": "application/json",   
+    },
+    body: JSON.stringify({ paymentIntentId: paymentIntent.value.id})
+  });
+  
+  const result = await response.json();
+  const { error } = result;
+  
+  if (error) {
+    addMessage(error.message);
+    return;
+  }
+  
+  paymentIntent.value = result.paymentIntent;
+  addMessage(`Capture payment for ${paymentIntent.value.id}`);
+  reset();
+};
+
 
 // Helpers
 function reset() {
@@ -115,6 +192,7 @@ const isProcessable = computed(() => {
           >
             Process
           </button>
+          
           <button
             type="button"
             id="capture-button"
