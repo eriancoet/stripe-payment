@@ -24,6 +24,7 @@
     "npm": "9.6.4"
   },
   "devDependencies": {
-    "@vue/cli-service": "^5.0.8"
+    "@vue/cli-service": "^5.0.8",
+    "vue-template-compiler": "^2.7.15"
   }
 }
