@@ -1,9 +1,21 @@
 require("dotenv").config({ path: "./.env" });
 const express = require("express");
 const app = express();
+
+const path = require('path');
+
+// Serve static assets if in production
+if (process.env.NODE_ENV === 'production') {
+  // Set static folder
+  app.use(express.static(path.join(__dirname, 'dist')));
+
+  // Handle SPA (for routes in Vue router history mode)
+  app.get('*', (req, res) => res.sendFile(path.resolve(__dirname, 'dist', 'index.html')));
+}
+
 app.use(express.json({}));
 
-const apikey = 'process.env.YOUR_API_KEY'
+const apikey = 'sk_test_51O2RTpGv92Mcajf1JmOSAlv9qmOoSKn9D9ZmkNbYvRpGsW3iWE01siy3acm70Oddl0IgXsKoS1qX69snFw7TSzIK00QlFpvxCv'
 const stripe = require("stripe")(apikey, {
   apiVersion: "2020-08-27",
   appInfo: {
@@ -72,7 +84,9 @@ try {
   }
 })
 
-app.listen(4242, () =>
-  console.log(`Node server listening at http://localhost:4242`)
-);
 
+
+const PORT = process.env.PORT || 4242;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
