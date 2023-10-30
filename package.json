@@ -22,5 +22,8 @@
   "engines": {
     "node": "v18.7.0",
     "npm": "9.6.4"
+  },
+  "devDependencies": {
+    "@vue/cli-service": "^5.0.8"
   }
 }
