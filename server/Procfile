@@ -1,2 +1,3 @@
 web: node server.js
+client: npm run start --prefix ../client
 
